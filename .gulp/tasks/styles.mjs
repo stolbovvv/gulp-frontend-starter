@@ -12,7 +12,15 @@ import { config } from '../config.mjs';
 import { dest, src } from 'gulp';
 
 export const handleStyles = () => {
-	const postcssPlugins = [postcssImport(), postcssUrl()];
+	const postcssPlugins = [
+		postcssImport({
+			resolve: (id) => {
+				if (id.startsWith('.')) return id;
+				return fileURLToPath(import.meta.resolve(id));
+			},
+		}),
+		postcssUrl(),
+	];
 
 	if (config.mode.prod) {
 		postcssPlugins.push(
