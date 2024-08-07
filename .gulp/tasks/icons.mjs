@@ -46,7 +46,7 @@ export const handleIcons = () => {
 		],
 	};
 
-	return src(config.path.src.icons)
+	return src(config.path.src.icons, { encoding: false })
 		.pipe(plumber())
 		.pipe(_if(config.mode.prod, dest(config.path.dest.icons)))
 		.pipe(
