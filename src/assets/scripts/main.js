@@ -1,1 +1,3 @@
-/* Main scripts */
+window.addEventListener('DOMContentLoaded', () => {
+	// Page scripts
+});
