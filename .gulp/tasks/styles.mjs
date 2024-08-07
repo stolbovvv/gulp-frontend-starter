@@ -1,5 +1,4 @@
 import _if from 'gulp-if';
-import newer from 'gulp-newer';
 import plumber from 'gulp-plumber';
 import rename from 'gulp-rename';
 import postcss from 'gulp-postcss';
@@ -37,7 +36,6 @@ export const handleStyles = () => {
 
 	return src(config.path.src.styles)
 		.pipe(plumber())
-		.pipe(newer(config.path.dest.styles))
 		.pipe(postcss(postcssPlugins))
 		.pipe(_if(config.mode.prod, rename({ suffix: '.min' })))
 		.pipe(dest(config.path.dest.styles));
