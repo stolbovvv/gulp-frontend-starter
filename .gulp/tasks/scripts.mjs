@@ -10,7 +10,7 @@ import { globSync } from 'glob';
 let cache;
 
 export const handleScripts = async () => {
-	const plugins = [commonjs(), nodeResolve()];
+	const plugins = [nodeResolve(), commonjs()];
 
 	if (config.mode.prod) {
 		plugins.push(
@@ -30,7 +30,7 @@ export const handleScripts = async () => {
 
 	await bundle.write({
 		dir: config.path.dest.scripts,
-		format: 'iife',
+		format: 'es',
 		sourcemap: config.mode.dev,
 		entryFileNames: `[name]${config.mode.prod ? '.min' : ''}.js`,
 		chunkFileNames: `[name]${config.mode.prod ? '.min' : ''}.js`,
@@ -38,9 +38,13 @@ export const handleScripts = async () => {
 };
 
 function getEntries(glob) {
-	return globSync(glob).reduce((entries, path) => {
+	const entries = {};
+
+	globSync(glob).forEach((path) => {
 		const { name } = nodePath.parse(path);
 		entries[name] = path;
-		return entries;
 	});
+
+	return entries;
 }
+
