@@ -22,7 +22,7 @@ export const handleIcons = () => {
 							name: 'removeAttrs',
 							active: true,
 							params: {
-								attrs: '(fill.*|stroke.*|opacity|clip-rule)',
+								attrs: '(fill|stroke|opacity|clip-rule)',
 							},
 						},
 						{
@@ -46,7 +46,7 @@ export const handleIcons = () => {
 		],
 	};
 
-	return src(config.path.src.icons, { encoding: false })
+	return src(config.path.src.icons, { encoding: false, ignore: ['**/_*'] })
 		.pipe(plumber())
 		.pipe(_if(config.mode.prod, dest(config.path.dest.icons)))
 		.pipe(

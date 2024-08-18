@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { accessSync, constants } from 'node:fs';
 import _if from 'gulp-if';
 import plumber from 'gulp-plumber';
 import rename from 'gulp-rename';
@@ -9,15 +12,11 @@ import postcssPresetEnv from 'postcss-preset-env';
 import postcssAutoprefixer from 'autoprefixer';
 import { config } from '../config.mjs';
 import { dest, src } from 'gulp';
-import { fileURLToPath } from 'node:url';
 
 export const handleStyles = () => {
 	const postcssPlugins = [
 		postcssImport({
-			resolve: (id) => {
-				if (id.startsWith('.')) return id;
-				return fileURLToPath(import.meta.resolve(id));
-			},
+			resolve: resolveFile,
 		}),
 		postcssUrl(),
 	];
@@ -31,13 +30,25 @@ export const handleStyles = () => {
 				grid: true,
 				cascade: true,
 			}),
-			postcssCssnano(),
 		);
 	}
 
 	return src(config.path.src.styles)
 		.pipe(plumber())
 		.pipe(postcss(postcssPlugins))
+		.pipe(dest(config.path.dest.styles))
+		.pipe(_if(config.mode.prod, postcss([postcssCssnano()])))
 		.pipe(_if(config.mode.prod, rename({ suffix: '.min' })))
-		.pipe(dest(config.path.dest.styles));
+		.pipe(_if(config.mode.prod, dest(config.path.dest.styles)));
 };
+
+function resolveFile(id, baseDir) {
+	const file = path.join(baseDir, id);
+
+	try {
+		accessSync(file, constants.F_OK);
+		return file;
+	} catch (error) {
+		return fileURLToPath(import.meta.resolve(id));
+	}
+}

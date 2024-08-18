@@ -1,4 +1,5 @@
 import nodePath from 'node:path';
+import chalk from 'chalk';
 import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
@@ -16,35 +17,49 @@ export const handleScripts = async () => {
 		plugins.push(
 			babel({
 				babelHelpers: 'bundled',
-				exclude: 'node_modules/**',
+				exclude: ['node_modules/**'],
 			}),
-			terser(),
 		);
 	}
 
-	const bundle = await rollup({
-		input: getEntries(config.path.src.scripts),
-		cache,
-		plugins,
-	});
+	let bundle;
 
-	await bundle.write({
-		dir: config.path.dest.scripts,
-		format: 'es',
-		sourcemap: config.mode.dev,
-		entryFileNames: `[name]${config.mode.prod ? '.min' : ''}.js`,
-		chunkFileNames: `[name]${config.mode.prod ? '.min' : ''}.js`,
-	});
+	try {
+		bundle = await rollup({
+			input: config.path.src.scripts,
+			cache,
+			plugins,
+		});
+	} catch (error) {
+		handleError(error);
+		return;
+	}
+
+	try {
+		await bundle.write({
+			dir: config.path.dest.scripts,
+			format: 'iife',
+			sourcemap: config.mode.dev,
+			entryFileNames: `[name]${config.mode.prod ? '.min' : ''}.js`,
+		});
+
+		if (config.mode.prod) {
+			await bundle.write({
+				dir: config.path.dest.scripts,
+				format: 'iife',
+				sourcemap: config.mode.dev,
+				entryFileNames: `[name].js`,
+				plugins: [terser()],
+			});
+		}
+	} catch (error) {
+		handleError(error);
+		return;
+	}
 };
 
-function getEntries(glob) {
-	const entries = {};
+function handleError(error) {
+	const name = chalk.bold.red(config.name);
 
-	globSync(glob).forEach((path) => {
-		const { name } = nodePath.parse(path);
-		entries[name] = path;
-	});
-
-	return entries;
+	console.log(`[${name}] ${chalk.bold.red('Rollup error:')}`, chalk.red(error.message));
 }
-

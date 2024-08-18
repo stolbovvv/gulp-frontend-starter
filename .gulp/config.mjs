@@ -18,8 +18,8 @@ export const config = {
 			icons: `${SOURCE_DIR}/assets/icons/*.svg`,
 			images: `${SOURCE_DIR}/assets/images/**/*.{png,jpg,svg,webp,avif,gif}`,
 			public: `${PUBLIC_DIR}/**/*.*`,
-			styles: `${SOURCE_DIR}/assets/styles/*.css`,
-			scripts: `${SOURCE_DIR}/assets/scripts/*.js`,
+			styles: `${SOURCE_DIR}/assets/styles/main.css`,
+			scripts: `${SOURCE_DIR}/assets/scripts/main.js`,
 		},
 		dest: {
 			root: BUILD_DIR,

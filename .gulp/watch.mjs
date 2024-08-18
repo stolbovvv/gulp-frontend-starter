@@ -48,9 +48,9 @@ export const runWatch = () => {
 		server.reload();
 	});
 
-	scripts.on('all', (event, path) => {
+	scripts.on('all', async (event, path) => {
 		handleLog(event, path);
-		handleScripts();
+		await handleScripts();
 		server.reload();
 	});
 
